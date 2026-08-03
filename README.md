@@ -71,10 +71,6 @@ Instead of analyzing individual trajectories,
 
 the project reconstructs the mixed-state density matrix
 
-\[
-\rho=\sum_i p_i |\psi_i\rangle\langle\psi_i|
-\]
-
 from many noisy trajectories.
 
 Quantum entanglement is then measured using
