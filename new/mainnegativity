@@ -1,0 +1,131 @@
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from experiments import negativity_saturation_scan, estimate_injection_count
+from analysis import scaling_collapse, collapsed_curves, bootstrap_pc_uncertainty
+from plots import (
+    plot_negativity_vs_noise_multi_N,
+    plot_purity_vs_noise_multi_N,
+    plot_operator_cost_vs_noise_multi_N,
+    plot_bond_dimension_noise_blindness,
+    plot_negativity_vs_cost,
+    plot_scaling_collapse,
+    plot_collapse_cost_landscape,
+)
+
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+NUM_QUBITS_LIST = [6, 8, 10]
+DEPTH = 14
+TRAJECTORIES_PER_BATCH = 25
+BATCHES = 4
+THETA_REPEATS = 3
+SEED = 42
+NU_RANGE = (0.1, 6.0)
+RUN_BOOTSTRAP = True
+BOOTSTRAP_SAMPLES = 30
+
+# p range set from the SMALLEST N (fewest injections -> needs the largest p
+# to fully decohere), not the largest N.
+min_injections = estimate_injection_count(min(NUM_QUBITS_LIST), DEPTH)
+max_injections = estimate_injection_count(max(NUM_QUBITS_LIST), DEPTH)
+K = 10.0  # p * injections ~ K reaches deep into the fully-decohered plateau
+p_max = K / min_injections
+NOISE_VALUES = np.concatenate([[0.0], np.geomspace(p_max / 25, p_max, 11)])
+NOISE_VALUES = np.round(NOISE_VALUES, 6)
+
+print(f"Injection count: N={min(NUM_QUBITS_LIST)} -> {min_injections}, "
+      f"N={max(NUM_QUBITS_LIST)} -> {max_injections}")
+print(f"Scanning p over ({len(NOISE_VALUES)} points): {NOISE_VALUES}")
+
+
+def main():
+    print(f"[Phase 1, corrected] negativity + operator-cost scan "
+          f"(theta_repeats={THETA_REPEATS}, batches={BATCHES}, "
+          f"trajectories/batch={TRAJECTORIES_PER_BATCH}) ...")
+    (negativity_table, purity_table, cost_table, op_entropy_table,
+     bond_table, runtime_table) = negativity_saturation_scan(
+        NOISE_VALUES, NUM_QUBITS_LIST, DEPTH,
+        trajectories_per_batch=TRAJECTORIES_PER_BATCH, batches=BATCHES,
+        theta_repeats=THETA_REPEATS, seed=SEED,
+    )
+
+    for N in NUM_QUBITS_LIST:
+        p_arr, neg_arr, neg_err = negativity_table[N]
+        _, cost_arr, cost_err = cost_table[N]
+        _, bond_arr, bond_err = bond_table[N]
+        print(f"N={N}")
+        for p, neg, ne, c, ce, bd, bde in zip(
+            p_arr, neg_arr, neg_err, cost_arr, cost_err, bond_arr, bond_err
+        ):
+            print(f"   p={p:.6f}  negativity={neg:.4f}+/-{ne:.4f}  "
+                  f"op_cost={c:.2f}+/-{ce:.2f}  "
+                  f"(single-traj bond={bd:.2f}+/-{bde:.2f})")
+
+    for N, (p_arr, neg_arr, err_arr) in negativity_table.items():
+        tail_spread = neg_arr[-3:].max() - neg_arr[-3:].min()
+        if tail_spread > 0.15:
+            print(f"  WARNING: N={N} negativity still changing at the top of "
+                  f"the p range (last 3 points span {tail_spread:.3f}) -- "
+                  f"consider raising K or p_max for this N.")
+
+    print("[Phase 2, corrected] scaling collapse ...")
+    collapse_result = scaling_collapse(negativity_table, nu_range=NU_RANGE)
+    pc, nu = collapse_result["best_pc"], collapse_result["best_nu"]
+    edge_warn = np.isclose(nu, NU_RANGE[0]) or np.isclose(nu, NU_RANGE[1])
+    print(f"  -> best_pc = {pc:.6f}, best_nu = {nu:.2f}, "
+          f"min_cost = {collapse_result['min_cost']:.4f}")
+    if edge_warn:
+        print("  WARNING: best_nu sits on the edge of nu_range -- signature "
+              "of no real collapse being found. Don't trust p_c/nu yet.")
+
+    pc_mean = pc_std = None
+    if RUN_BOOTSTRAP and not edge_warn:
+        print(f"  Bootstrapping p_c uncertainty ({BOOTSTRAP_SAMPLES} resamples) ...")
+        pc_mean, pc_std = bootstrap_pc_uncertainty(
+            negativity_table, n_boot=BOOTSTRAP_SAMPLES, seed=SEED, nu_range=NU_RANGE,
+        )
+        print(f"  -> bootstrap: p_c = {pc_mean:.6f} +/- {pc_std:.6f}")
+
+    curves = collapsed_curves(negativity_table, pc, nu)
+
+    # Correlation gut-check: negativity vs the CORRECT cost proxy, and vs
+    # the noise-blind one, across all N,p points.
+    all_neg, all_cost, all_bond = [], [], []
+    for N in NUM_QUBITS_LIST:
+        all_neg.extend(negativity_table[N][1])
+        all_cost.extend(cost_table[N][1])
+        all_bond.extend(bond_table[N][1])
+    corr_cost = np.corrcoef(all_neg, all_cost)[0, 1]
+    corr_bond = np.corrcoef(all_neg, all_bond)[0, 1]
+    print(f"Pearson correlation(negativity, operator_cost) = {corr_cost:.3f}  "
+          f"[should be strongly positive -- this is the money number]")
+    print(f"Pearson correlation(negativity, single-traj bond_dim) = {corr_bond:.3f}  "
+          f"[expected to be near zero -- noise-blindness check]")
+
+    # -----------------------------------------------------------------
+    # Figures
+    # -----------------------------------------------------------------
+    fig, axes = plt.subplots(2, 3, figsize=(19, 11))
+    title = "Entanglement Collapse & Classical Simulability Boundary"
+    if pc_mean is not None:
+        title += f"   ($p_c$={pc_mean:.5f}$\\pm${pc_std:.5f}, $\\nu$={nu:.2f})"
+    fig.suptitle(title, fontsize=14, fontweight="bold")
+
+    plot_negativity_vs_noise_multi_N(negativity_table, ax=axes[0, 0])
+    plot_purity_vs_noise_multi_N(purity_table, ax=axes[0, 1])
+    plot_scaling_collapse(curves, pc, nu, ax=axes[0, 2])
+    plot_operator_cost_vs_noise_multi_N(cost_table, ax=axes[1, 0])
+    plot_negativity_vs_cost(negativity_table, cost_table, ax=axes[1, 1])
+    plot_bond_dimension_noise_blindness(bond_table, ax=axes[1, 2])
+
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.savefig("negativity_cost_dashboard.png", dpi=150)
+    print("Saved negativity_cost_dashboard.png")
+
+
+if __name__ == "__main__":
+    main()
