@@ -91,11 +91,11 @@ Several complexity measures were tested.
 
 ### Rejected
 
-❌ Pure-state von Neumann entropy
+ Pure-state von Neumann entropy
 
-❌ Single-trajectory MPS bond dimension
+ Single-trajectory MPS bond dimension
 
-❌ Density-matrix rank
+ Density-matrix rank
 
 Each fails for a different physical reason.
 
