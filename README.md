@@ -1,422 +1,392 @@
 # Entanglement Collapse & Classical Simulability Boundary of Noisy Variational Quantum Circuits
 
-> Investigating when noisy variational quantum circuits lose quantum advantage and become classically simulable.
+> **Can realistic quantum noise destroy the quantum advantage of variational quantum circuits?**
+>
+> This project investigates where noisy variational quantum circuits transition from highly entangled quantum systems into states that become progressively easier to simulate classically.
 
 ---
 
-## Overview
+# Overview
 
-This project studies how **noise affects entanglement** in variational quantum circuits and how that relates to the **cost of classical tensor-network simulation**.
+This repository studies the relationship between
 
-The project began by attempting to reproduce the commonly reported **entanglement-collapse transition** using standard pure-state trajectory simulations.
+- Quantum entanglement
+- Noise
+- Classical tensor-network simulation complexity
 
-However, an unexpected result appeared:
+using Matrix Product States (MPS), mixed-state density matrices, logarithmic negativity, and operator-Schmidt analysis.
 
-- Entanglement entropy remained almost perfectly constant.
-- Scaling-collapse analysis failed.
-- No critical point could be identified.
+During this project, several commonly-used complexity measures were tested and systematically eliminated because they fail under stochastic Pauli trajectory simulations.
 
-Rather than treating this as a coding error, the project investigated **why** this happened.
-
-This ultimately led to identifying which quantities are physically meaningful and which are fundamentally incapable of detecting entanglement collapse under stochastic Pauli trajectory simulations.
+The work ultimately identifies **mixed-state logarithmic negativity** together with the **operator-Schmidt spectrum** as the correct quantities for studying entanglement collapse and classical simulability.
 
 ---
 
 # Motivation
 
-Many papers claim that increasing noise eventually destroys quantum entanglement, making quantum circuits easier to simulate classically.
+Many papers study
 
-The natural question is
+- Entanglement transitions
+- Measurement-induced phase transitions
+- Tensor-network simulation
 
-> **Which physical quantity actually detects this transition?**
+However, an important practical question remains:
 
-Several intuitive candidates exist:
+> **When does realistic hardware noise make a variational quantum circuit classically easy to simulate?**
 
-- von Neumann entropy
-- MPS bond dimension
-- density matrix rank
-- logarithmic negativity
-- operator-Schmidt spectrum
+This project approaches that question experimentally.
 
-This work systematically evaluates each of them.
+Instead of assuming a complexity measure is correct, multiple candidate measures are tested, validated, or rejected.
 
 ---
 
 # Main Contributions
 
-This work demonstrates that **not every complexity measure is physically meaningful for noisy trajectory simulations.**
+This work makes several methodological contributions.
 
-Specifically,
+## 1. Demonstrates why pure-state entropy fails
 
-✔ Identified why pure-state entropy fails.
+The first experiments reproduced an unexpected result:
 
-✔ Identified why single-trajectory bond dimension fails.
+Increasing the physical error rate produced almost **no change** in bipartite von Neumann entropy.
 
-✔ Identified why density-matrix rank is misleading.
+This was traced to a mathematical property of stochastic Pauli trajectory simulations.
 
-✔ Demonstrated that logarithmic negativity correctly captures mixed-state entanglement collapse.
-
-✔ Proposed operator-Schmidt participation ratio as a physically meaningful proxy for classical simulation cost.
-
----
-
-# Methodology
-
-## Circuit
-
-Hardware-efficient variational quantum circuit
-
-- Random parameters
-- Alternating rotation layers
-- Entangling CNOT layers
-- Depth increased until entanglement saturation
-
----
-
-## Noise Model
-
-Independent stochastic single-qubit depolarizing noise
-
-After every gate,
-
-- Identity
-- X
-- Y
-- Z
-
-are sampled according to probability
-
-```
-p
-```
-
-Many trajectories are averaged to reconstruct the mixed density matrix.
-
----
-
-## Simulation
-
-Tensor-network simulation using Matrix Product States (MPS)
-
-Implemented with
-
-- Quimb
-- Adaptive MPS compression
-- Monte Carlo trajectory averaging
-
----
-
-# Metrics Investigated
-
----
-
-## 1. Saturation Entropy
-
-Measures bipartite von Neumann entropy of a **single trajectory**
-
-### Observation
-
-Entropy remained nearly constant over the entire noise range.
-
-Example
-
-```
-N = 10
-
-Noise = 0.00
-Entropy ≈ 4.30
-
-Noise = 0.035
-Entropy ≈ 4.28
-```
-
-### Conclusion
-
-Single-trajectory entropy is **noise blind** under stochastic Pauli trajectories because every sampled error is a **local unitary**, which preserves Schmidt coefficients.
+Each sampled Pauli error is a **local unitary operation**, and local unitaries preserve the Schmidt spectrum of an individual pure trajectory.
 
 Therefore
 
-**Pure-state entropy cannot detect entanglement collapse.**
+- Pure-state entropy remains constant
+- Single-trajectory MPS bond dimension remains constant
+
+even though physical noise is increasing.
+
+This explains why many intuitive trajectory-based metrics become completely insensitive to noise.
 
 ---
 
-## 2. Scaling Collapse
+## 2. Identifies the correct entanglement measure
 
-Attempted finite-size scaling
+Instead of analyzing individual trajectories,
 
-```
-S = f[(p-pc)N^(1/ν)]
-```
+the project reconstructs the mixed-state density matrix
 
-### Observation
+\[
+\rho=\sum_i p_i |\psi_i\rangle\langle\psi_i|
+\]
 
-The optimizer repeatedly converged to the search boundary.
+from many noisy trajectories.
 
-Example
+Quantum entanglement is then measured using
 
-```
-ν = 0.10
-```
+**Logarithmic Negativity**
 
-(the minimum allowed value)
+which correctly detects mixed-state entanglement.
 
-rather than a stable interior solution.
+Unlike pure-state entropy,
 
-### Conclusion
-
-No physical transition exists in the measured observable.
-
-The failure originates from using an inappropriate metric rather than incorrect fitting.
+negativity decreases smoothly as physical noise increases.
 
 ---
 
-## 3. State Purity
+## 3. Identifies the correct classical simulation complexity measure
 
-Mixed-state purity
+Several complexity measures were tested.
 
-```
-Tr(ρ²)
-```
+### Rejected
 
-was reconstructed from trajectory averaging.
+❌ Pure-state von Neumann entropy
 
-### Observation
+❌ Single-trajectory MPS bond dimension
 
-Purity decreases rapidly with increasing noise.
+❌ Density-matrix rank
 
-```
-Pure state
+Each fails for a different physical reason.
+
+---
+
+### Correct
+
+The operator-Schmidt spectrum of the density matrix provides a meaningful estimate of mixed-state simulation complexity.
+
+Its participation ratio decreases together with logarithmic negativity.
+
+This directly links
+
+Quantum Entanglement
 
 ↓
 
-Mixed state
-```
-
-### Interpretation
-
-Noise successfully converts the quantum state into a mixed state.
-
-This validates the density-matrix reconstruction.
-
----
-
-## 4. Logarithmic Negativity
-
-Negativity measures genuine quantum entanglement of mixed states.
-
-Unlike entropy, it ignores classical randomness.
-
-### Observation
-
-Negativity decreases monotonically with noise.
-
-For all system sizes,
-
-- high at p = 0
-- rapid decay
-- plateau at large noise
-
-### Conclusion
-
-Negativity correctly detects entanglement collapse.
-
----
-
-## 5. Operator-Schmidt Participation Ratio
-
-The density matrix itself can be viewed as an operator.
-
-Performing a Schmidt decomposition on the density operator yields the operator-Schmidt spectrum.
-
-From this spectrum,
-
-the participation ratio estimates the effective operator complexity.
-
-### Observation
-
-Operator complexity decreases together with negativity.
-
-### Interpretation
-
-As entanglement disappears,
-
-the density matrix becomes easier to represent,
-
-implying reduced classical simulation complexity.
-
----
-
-## 6. Single-Trajectory Bond Dimension
-
-The MPS bond dimension of individual trajectories was also monitored.
-
-### Observation
-
-Bond dimension remained completely flat across all noise values.
-
-### Conclusion
-
-Just like entropy,
-
-single-trajectory bond dimension is invariant under local Pauli errors.
-
-Therefore it cannot measure noise-induced simplification.
-
----
-
-# Experimental Results
-
-## Figure 1 — Entanglement Collapse
-
-Negativity decreases smoothly with increasing physical error rate.
-
-This demonstrates genuine mixed-state entanglement destruction.
-
----
-
-## Figure 2 — State Purity
-
-Purity rapidly decreases.
-
-The reconstructed state evolves from
-
-```
-Pure
+Operator Complexity
 
 ↓
 
-Mixed
-```
-
-as expected for depolarizing noise.
+Tensor-Network Simulation Cost
 
 ---
 
-## Figure 3 — Scaling Collapse
+## 4. Establishes the entanglement–simulability connection
 
-Finite-size scaling was explored.
+Using the same reconstructed density matrices,
 
-The obtained critical parameters provide an estimate of the transition region, although larger system sizes are required for reliable critical exponents.
+the project compares
 
----
-
-## Figure 4 — Simulation Cost
-
-Operator-Schmidt participation ratio decreases together with negativity.
-
-This indicates that quantum complexity and classical simulation cost collapse simultaneously.
-
----
-
-## Figure 5 — Entanglement vs Simulation Cost
-
-Negativity and operator complexity exhibit strong positive correlation.
-
-This supports the hypothesis that
-
-> **loss of entanglement coincides with increased classical simulability.**
-
----
-
-## Figure 6 — Bond Dimension Comparison
-
-Single-trajectory MPS bond dimension remains constant.
-
-This experimentally demonstrates that it is not an appropriate complexity measure for stochastic Pauli trajectory simulations.
-
----
-
-# Important Scientific Findings
-
-## Finding 1
-
-Single-trajectory von Neumann entropy is fundamentally incapable of detecting entanglement collapse under stochastic Pauli noise.
-
----
-
-## Finding 2
-
-Single-trajectory MPS bond dimension is equally insensitive.
-
----
-
-## Finding 3
-
-Density-matrix rank is not a meaningful simulation-cost metric because highly mixed states possess maximal rank while remaining easy to represent.
-
----
-
-## Finding 4
-
-Logarithmic negativity correctly captures mixed-state entanglement degradation.
-
----
-
-## Finding 5
-
-Operator-Schmidt participation ratio provides a meaningful proxy for classical simulation complexity.
-
----
-
-## Finding 6
-
-Entanglement collapse and simulation-cost reduction occur together.
-
-This directly connects quantum correlations with tensor-network simulation efficiency.
-
----
-
-# Key Takeaways
-
-This project demonstrates that choosing the correct physical observable is essential.
-
-Several intuitive quantities
-
-- Entropy
-- Bond Dimension
-- Density Matrix Rank
-
-appear reasonable but fail to describe the underlying physics.
-
-Instead,
-
-the combination of
-
-- Mixed-state logarithmic negativity
+- Logarithmic negativity
 - Operator-Schmidt participation ratio
 
-provides a consistent picture of both
+and finds a strong positive correlation.
 
-- entanglement collapse
-- classical simulability.
+As entanglement collapses,
+
+the effective operator complexity also collapses,
+
+indicating that noisy circuits become progressively easier to simulate classically.
+
+---
+
+# Experimental Workflow
+
+```
+Variational Quantum Circuit
+            │
+            ▼
+Random Pauli Noise
+            │
+            ▼
+Multiple Quantum Trajectories
+            │
+            ▼
+Density Matrix Reconstruction
+            │
+            ▼
+──────────────────────────────────────
+│                                    │
+│  Logarithmic Negativity            │
+│  (Quantum Entanglement)            │
+│                                    │
+──────────────────────────────────────
+            │
+            ▼
+Operator-Schmidt Decomposition
+            │
+            ▼
+Participation Ratio
+            │
+            ▼
+Estimated Classical Simulation Cost
+```
+
+---
+
+# Figures
+
+---
+
+## Figure 1 — Entanglement Saturation
+
+![Entropy Saturation](figures/saturation.png)
+
+This verifies that the circuit reaches its maximum entanglement before measurements are taken.
+
+### Observation
+
+- Entanglement rapidly increases with circuit depth.
+- Around 30–35 layers the entropy saturates.
+- Increasing depth further produces almost no additional entanglement.
+- Different noise levels reach almost the same saturation value.
+
+### Conclusion
+
+The circuits are sufficiently deep.
+
+The absence of entropy collapse is **not** due to shallow circuits.
+
+---
+
+## Figure 2 — Pure-State Entropy Search (Negative Result)
+
+![Search Mode](figures/search_mode.png)
+
+This figure shows the original search using pure-state von Neumann entropy.
+
+### Panel A
+
+Entanglement vs. noise
+
+Observation:
+
+Almost perfectly flat.
+
+Increasing physical noise does not reduce entropy.
+
+---
+
+### Panel B
+
+Finite-size scaling
+
+The scaling collapse fails.
+
+The fitted exponent reaches the boundary of the search space,
+
+indicating no genuine transition.
+
+---
+
+### Panel C
+
+Collapse-cost landscape
+
+No clear minimum exists.
+
+The optimization simply sticks to the parameter boundaries.
+
+---
+
+### Conclusion
+
+Pure-state entropy cannot detect entanglement collapse under stochastic Pauli trajectory simulations.
+
+This negative result motivated the remainder of the project.
+
+---
+
+## Figure 3 — Correct Mixed-State Analysis
+
+![Main Results](figures/main_results.png)
+
+This figure summarizes the corrected mixed-state analysis.
+
+---
+
+### (a) Entanglement collapse vs. noise
+
+Measured using logarithmic negativity.
+
+Observation
+
+- Entanglement decreases monotonically.
+- Larger systems begin with larger entanglement.
+- Increasing noise suppresses quantum correlations.
+
+Conclusion
+
+The mixed-state entanglement transition is clearly visible.
+
+---
+
+### (b) State purity
+
+Purity rapidly decreases with noise.
+
+Observation
+
+- Noise converts pure quantum states into mixed states.
+- The reconstructed density matrix behaves physically.
+
+This validates the simulation.
+
+---
+
+### (c) Finite-size scaling
+
+Finite-size scaling produces an interior optimum.
+
+Unlike the entropy search,
+
+the optimizer no longer sticks to parameter boundaries.
+
+This indicates that the transition is now physically meaningful.
+
+---
+
+### (d) Operator-Schmidt participation ratio
+
+This estimates mixed-state operator complexity.
+
+Observation
+
+As noise increases,
+
+the participation ratio decreases.
+
+Interpretation
+
+The density matrix becomes progressively simpler,
+
+making tensor-network simulation easier.
+
+---
+
+### (e) Entanglement versus simulation cost
+
+This compares
+
+- Logarithmic negativity
+- Operator participation ratio
+
+Observation
+
+Both decrease together.
+
+Conclusion
+
+Quantum entanglement collapse is directly associated with reduced classical simulation complexity.
+
+---
+
+### (f) Single-trajectory bond dimension
+
+Observation
+
+Bond dimension remains essentially constant.
+
+Interpretation
+
+Single noisy trajectories remain highly entangled because every sampled Pauli error is a local unitary.
+
+This confirms that trajectory bond dimension is not an appropriate complexity measure for this problem.
+
+---
+
+
+
+# Main Findings
+
+- Pure-state entropy is completely insensitive to stochastic Pauli trajectory noise.
+- Single-trajectory bond dimension is also noise-blind.
+- Mixed-state logarithmic negativity correctly captures entanglement collapse.
+- Operator-Schmidt participation ratio decreases with entanglement.
+- Classical simulation complexity reduces as quantum entanglement disappears.
+- The corrected finite-size scaling behaves consistently, unlike the original entropy-based analysis.
+
+---
+
+# Scientific Significance
+
+This work demonstrates that selecting the wrong metric can completely hide the physics of noisy quantum circuits.
+
+Rather than introducing a new simulation algorithm, it establishes **which quantities should and should not be used** when studying entanglement collapse in stochastic trajectory simulations.
+
+The results provide a practical framework for connecting
+
+- quantum entanglement,
+- mixed-state physics,
+- and classical tensor-network simulation complexity.
 
 ---
 
 # Future Work
 
-- Larger qubit systems
-- More Monte Carlo trajectories
-- MPO-based mixed-state simulations
+Future directions include
+
+- Larger system sizes
+- Matrix Product Operator (MPO) simulations
+- Purification-based simulations
+- Alternative noise channels
+- Hardware validation
+- Comparison with measurement-induced phase transitions
 - Adaptive tensor-network compression
-- Hardware validation on noisy quantum processors
-- Comparison with Haar-random circuit transitions
 
 ---
 
-# Technologies
-
-- Python
-- NumPy
-- SciPy
-- Quimb
-- Matplotlib
-- Tensor Networks
-- Matrix Product States (MPS)
-
----
-
-
-
-# License
-
-MIT License
