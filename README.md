@@ -376,17 +376,3 @@ The results provide a practical framework for connecting
 
 ---
 
-# Future Work
-
-Future directions include
-
-- Larger system sizes
-- Matrix Product Operator (MPO) simulations
-- Purification-based simulations
-- Alternative noise channels
-- Hardware validation
-- Comparison with measurement-induced phase transitions
-- Adaptive tensor-network compression
-
----
-
