@@ -140,7 +140,7 @@ Hardware-efficient Variational Circuit
 **Image Placeholder**
 
 
-!(saturation_check.png)
+![](saturation_check.png)
 
 
 
