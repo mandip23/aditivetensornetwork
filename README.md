@@ -201,8 +201,8 @@ Observation:
 
 Shows the optimization landscape over
 
-- critical noise \(p_c\)
-- critical exponent \(\nu\)
+- critical noise $p_c$
+- critical exponent $\nu$
 
 Observation:
 
@@ -263,9 +263,9 @@ Observation:
 
 Measures
 
-\[
+$$
 \mathrm{Tr}(\rho^2)
-\]
+$$
 
 Observation:
 
@@ -316,18 +316,7 @@ This independently confirms the conclusion from Experiment 1.
 
 ---
 
-# Metrics Investigated
 
-| Metric | Result | Suitable? |
-|---------|--------|-----------|
-| Pure-state von Neumann entropy | Noise-blind | ❌ |
-| Schmidt rank | Noise-blind | ❌ |
-| Single-trajectory MPS bond dimension | Noise-blind | ❌ |
-| Density-matrix rank | Measures mixedness, not simulation cost | ❌ |
-| Logarithmic Negativity | Correct mixed-state entanglement measure | ✅ |
-| Operator-Schmidt Participation Ratio | Effective classical simulation complexity | ✅ |
-
----
 
 # Main Findings
 
@@ -338,58 +327,6 @@ This independently confirms the conclusion from Experiment 1.
 - Quantum entanglement collapse is accompanied by reduced tensor-network simulation complexity.
 - Selecting the wrong observable can completely hide the physics of noisy quantum circuits.
 
----
-
-# Repository Structure
-
-```text
-.
-├── circuit.py
-├── experiments.py
-├── analysis.py
-├── plots.py
-├── adaptive.py
-├── benchmarks.py
-├── main.py
-├── main_negativity.py
-├── figures/
-│   ├── saturation_check.png
-│   ├── dashboard.png
-│   └── negativity_cost_dashboard.png
-├── outputs/
-├── requirements.txt
-└── README.md
-```
-
----
-
-# Installation
-
-```bash
-git clone https://github.com/<your-username>/<your-repository>.git
-
-cd <your-repository>
-
-pip install -r requirements.txt
-```
-
----
-
-# Running the Experiments
-
-Original entropy-based experiment:
-
-```bash
-python main.py
-```
-
-Corrected mixed-state analysis:
-
-```bash
-python main_negativity.py
-```
-
----
 
 # Current Limitations
 
@@ -397,7 +334,6 @@ python main_negativity.py
 - Results have been thoroughly validated for small systems; larger systems require additional computational resources.
 - The operator-Schmidt participation ratio is used as a physically motivated proxy for simulation complexity. A full Matrix Product Operator (MPO) simulation remains future work.
 
----
 
 # Future Work
 
@@ -409,23 +345,7 @@ python main_negativity.py
 - Hardware validation
 - Finite-size scaling with larger system sizes
 
----
 
-# Citation
 
-If this repository contributes to your research, please cite:
 
-```bibtex
-@software{entanglement_simulability_boundary,
-  title={Entanglement Collapse and Classical Simulability of Noisy Variational Quantum Circuits},
-  author={Your Name},
-  year={2026},
-  url={https://github.com/your-username/your-repository}
-}
-```
 
----
-
-# License
-
-This project is released under the MIT License.
