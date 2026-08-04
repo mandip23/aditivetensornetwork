@@ -191,20 +191,7 @@ finite-size scaling collapse + noise-blindness comparison
 - Circuit construction: Qiskit
 - Python: 3.10+
 
-## Repository structure
 
-```
-circuit.py            parametrized circuit + MPS evolution, noise-schedule replay
-information.py         per-layer pure-state diagnostics (entropy, bond dim, Schmidt spectrum)
-density_matrix.py      dense reconstruction, negativity, purity, operator-Schmidt cost proxies
-experiments.py          trajectory/circuit-instance averaging, all the scan orchestration
-analysis.py             finite-size scaling collapse + bootstrap + edge-of-range warning
-plots.py                 all figures, including explicit noise-blindness comparison panels
-main.py                  original entropy-based pipeline (Phase 1/2 kept as reference/negative
-                         result; Phase 3/4 still valid — truncation/fidelity simulability boundary)
-main_negativity.py        the corrected pipeline — run this one
-assets/                  screenshots referenced in this README
-```
 
 ## Running experiments
 
@@ -271,10 +258,4 @@ point before you've built a whole figure around it.
 - finite-size scaling redone on properly-sampled negativity data across all N
 - adaptive truncation tied to the operator-cost proxy directly
 
-## Citation
 
-If this code or the methodology is useful to you, please cite this repository.
-
-## License
-
-MIT.
