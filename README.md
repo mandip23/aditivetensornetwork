@@ -81,9 +81,7 @@ Instead of analyzing individual noisy trajectories,
 
 the project reconstructs the mixed-state density matrix
 
-\[
-\rho=\sum_i p_i |\psi_i\rangle\langle\psi_i|
-\]
+
 
 from many stochastic trajectories.
 
@@ -116,11 +114,11 @@ Hardware-efficient Variational Circuit
  Density Matrix Reconstruction
             │
             ▼
- ┌───────────────────────────────┐
- │ Logarithmic Negativity         │
- │ Purity                         │
- │ Operator-Schmidt Spectrum      │
- └───────────────────────────────┘
+ 
+  Logarithmic Negativity         
+  Purity                         
+  Operator-Schmidt Spectrum      
+ 
             │
             ▼
  Finite-Size Scaling Analysis
@@ -169,9 +167,9 @@ Therefore, the later failure of entropy is **not** caused by insufficient circui
 
 **Image Placeholder**
 
-```
-dashboard.png
-```
+
+![](dashboard.png)
+
 
 This figure summarizes the original entropy-based search.
 
@@ -242,9 +240,9 @@ The failure is therefore caused by the observable itself—not by the simulation
 
 **Image Placeholder**
 
-```
-negativity_cost_dashboard.png
-```
+
+![](negativity_cost_dashboard.png)
+
 
 Motivated by Experiment 1, the analysis was reformulated using reconstructed mixed states.
 
