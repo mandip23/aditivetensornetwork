@@ -242,7 +242,7 @@ The failure is therefore caused by the observable itself—not by the simulation
 **Image Placeholder**
 
 ```
-figures/negativity_cost_dashboard.png
+negativity_cost_dashboard.png
 ```
 
 Motivated by Experiment 1, the analysis was reformulated using reconstructed mixed states.
