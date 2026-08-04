@@ -140,7 +140,7 @@ Hardware-efficient Variational Circuit
 **Image Placeholder**
 
 ```
-figures/saturation_check.png
+saturation_check.png
 ```
 
 ### Purpose
@@ -169,7 +169,7 @@ Therefore, the later failure of entropy is **not** caused by insufficient circui
 **Image Placeholder**
 
 ```
-figures/dashboard.png
+dashboard.png
 ```
 
 This figure summarizes the original entropy-based search.
