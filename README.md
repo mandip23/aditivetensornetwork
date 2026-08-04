@@ -140,7 +140,8 @@ Hardware-efficient Variational Circuit
 **Image Placeholder**
 
 ```
-<img src="images/saturation_check.png" alt="Alt Text" width="500">
+![Image Alt Text](saturation_check.png)
+
 ```
 
 ### Purpose
