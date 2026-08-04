@@ -50,27 +50,7 @@ boundary via SVD truncation, a separate question that doesn't depend on any of t
 broken metrics below) and, honestly, as a documented example of what a dead-end
 metric looks like when you actually run it.
 
-## Main results
 
-![entropy vs noise, completely flat across every N](assets/entropy_flat_dashboard.png)
-
-Three system sizes, noise swept from 0 to 0.035, three panels:
-
-**Left — entropy vs. noise.** Flat, for every N. No decrease anywhere in this range.
-Trajectory entropy simply doesn't respond to this noise model (explained below, and
-it's not a numerical issue).
-
-**Middle — scaling collapse.** Since there's no real transition to find, the fit
-does what fits do when there's nothing there: it doesn't converge to anything
-meaningful.
-
-**Right — collapse cost landscape.** The optimizer's best fit sits at `ν=0.10`,
-exactly the floor of the search window I gave it. That's the tell. A fit pinned to
-the edge of its own search range means the data has no transition in it, not that
-the search range needs to be wider. The code checks for this now and prints a
-warning whenever it happens.
-
-![entropy vs circuit layer, saturating around layer 25](assets/saturation_check.png)
 
 Before trusting the flat result above, I checked whether it was simply an
 under-evolved circuit — plotted entropy against circuit layer instead of noise, for
@@ -239,12 +219,7 @@ point before you've built a whole figure around it.
   hitting zero/one exactly — the noise kills quantum entanglement but some residual
   classical correlation survives. Worth its own discussion, not a loose end to
   quietly ignore.
-- The README shouldn't claim more than the experiments show. The validated
-  contribution right now is the methodological one: which metrics fail under this
-  noise model and why, and that the two that work (negativity, operator-Schmidt
-  participation ratio) behave consistently with each other. The full
-  entanglement-collapse-defines-the-simulability-boundary story is supported at
-  N=6 and still being scaled up, not yet a closed case across all N.
+
 
 ## Future work
 
