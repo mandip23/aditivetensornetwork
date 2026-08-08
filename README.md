@@ -319,8 +319,8 @@ This independently confirms the conclusion from Experiment 1.
 - Pure-state entropy is insensitive to stochastic Pauli trajectory noise.
 - Schmidt rank and single-trajectory bond dimension fail for the same mathematical reason.
 - Mixed-state logarithmic negativity correctly captures entanglement collapse.
-- Operator-Schmidt participation ratio decreases together with logarithmic negativity.
-- Quantum entanglement collapse is accompanied by reduced tensor-network simulation complexity.
+- The operator-Schmidt participation ratio changes systematically with noise and increases as logarithmic negativity decreases, indicating a        nontrivial relationship between mixed-state entanglement and operator-level simulation complexity .
+- Entanglement collapse does not automatically imply reduced tensor-network simulation complexity; the mixed-state operator structure can become    more complex even as physical entanglement decreases  .
 - Selecting the wrong observable can completely hide the physics of noisy quantum circuits.
 
 
