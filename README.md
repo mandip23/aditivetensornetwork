@@ -283,13 +283,9 @@ Repeating the scaling analysis with logarithmic negativity produces a meaningful
 
 ### Panel D — Operator-Schmidt Participation Ratio
 
-Measures effective operator complexity.
-
-Observation:
-
-Operator complexity decreases together with entanglement.
-
----
+The operator-Schmidt participation ratio changes systematically with increasing noise.
+As logarithmic negativity decreases, the operator-level complexity increases and then approaches a plateau.
+This shows that mixed-state entanglement and tensor-network operator complexity are not simply proportional.
 
 ### Panel E — Entanglement vs Classical Simulation Cost
 
