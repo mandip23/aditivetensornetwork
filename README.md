@@ -135,7 +135,7 @@ Hardware-efficient Variational Circuit
 
 # Figure 1 — Entanglement Saturation Check
 
-**Image Placeholder**
+
 
 
 ![](saturation_check.png)
